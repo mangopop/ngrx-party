@@ -18,9 +18,9 @@ import {partyModel, percentAttending} from './common/selectors';
       <h3>@ngrx/store Party Planner</h3>
 
       <app-party-stats
-        [invited]="(people | async)?.length"
-        [attending]="(attending | async)?.length"
-        [guests]="(guests | async)"
+        [invited]="(model | async)?.total"
+        [attending]="(model | async)?.attending"
+        [guests]="(model | async)?.guests"
       >
       </app-party-stats>
 
@@ -29,8 +29,7 @@ import {partyModel, percentAttending} from './common/selectors';
       <app-person-input (addPerson)="addPerson($event)" > </app-person-input>
 
       <app-person-list
-        [people]="people | async" 
-        [filter]="filter | async"
+        [people]="(model | async)?.people"
         (addGuest)="addGuest($event)"
         (removeGuest)="removeGuest($event)"
         (removePerson)="removePerson($event)"
@@ -40,13 +39,8 @@ import {partyModel, percentAttending} from './common/selectors';
     `
 })
 export class AppComponent {
-    // public percentAttendance;
-    // public model;
-    public people;
-    public filter;
-    public attending;
-    public guests;
-    // private subscription;
+    
+    public model;
 
     constructor(
      private _store: Store<any> //should be appstate interface
@@ -58,51 +52,36 @@ export class AppComponent {
         Unsubscribe wil be called automatically when component
         is disposed.
       */
-      this.people = _store.select('people');
+      // this.people = _store.select('people');
 
-      /* 
-        demonstrating use without the async pipe,
-        we will explore the async pipe in the next lesson
-      */
-      // this.subscription = this._store
-      //   .select('people')
-      //   .subscribe(people => {
-      //     this.people = people;
-      // });
       /*
         this is a naive way to handle projecting state, we will discover a better
         Rx based solution in next lesson
         This when we filter on the person-list, filter is present on it.
       */
-      this.filter = _store.select('partyFilter');
-      this.attending = this.people.map(p => p.filter(person => person.attending));
-      this.guests = this.people
-          .map(p => p.map(person => person.guests)
-                     .reduce((acc, curr) => acc + curr, 0));
+      // this.filter = _store.select('partyFilter');
+      // this.attending = this.people.map(p => p.filter(person => person.attending));
+      // this.guests = this.people
+      //     .map(p => p.map(person => person.guests)
+      //                .reduce((acc, curr) => acc + curr, 0));
+
       /*
         Every time people or partyFilter emits, pass the latest
         value from each into supplied function. We can then calculate
         and output statistics.
       */
-      // this.model = Observable.combineLatest(
-      //     _store.select('people'),
-      //     _store.select('partyFilter'),
-      //     (people, filter) => {
-      //     return {
-      //       total: people.length,
-      //       people: people.filter(filter),
-      //       attending: people.filter(person => person.attending).length,
-      //       guests: people.reduce((acc, curr) => acc + curr.guests, 0)
-      //     }
-      //   });
-      // this.model = Observable.combineLatest(
-      //       _store.select('people'),
-      //       _store.select('partyFilter')
-      //     )
-      //     //extracting party model to selector
-      //     .let(partyModel());
-      // //for demonstration on combining selectors
-      // this.percentAttendance = _store.let(percentAttending());
+
+      this.model = Observable.combineLatest(
+          _store.select('people'),
+          _store.select('partyFilter'),
+          (people, filter) => {
+          return {
+            total: people.length,
+            people: people.filter(filter),
+            attending: people.filter(person => person.attending).length,
+            guests: people.reduce((acc, curr) => acc + curr.guests, 0)
+          }
+        });
 
     }
     

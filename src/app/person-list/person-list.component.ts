@@ -5,7 +5,7 @@ import { Component, Input, Output, EventEmitter, ChangeDetectionStrategy } from 
     template: `
       <ul>
         <li 
-          *ngFor="let person of people.filter(filter)"
+          *ngFor="let person of people"
           [class.attending]="person.attending"
         >
            {{person.name}} - Guests: {{person.guests}}
@@ -31,7 +31,7 @@ export class PersonListComponent {
     */
     @Input() people;
     //for now, we will pass filter down and apply
-    @Input() filter;
+    // @Input() filter;
     @Output() addGuest = new EventEmitter();
     @Output() removeGuest = new EventEmitter();
     @Output() removePerson = new EventEmitter();

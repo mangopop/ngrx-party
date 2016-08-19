@@ -11,7 +11,6 @@ For this functionality we have a couple of options. The first would be to simply
 
 //return appropriate function depending on selected filter
 export const partyFilter = (state = person => person, action) => {
-    console.log(state,action);
     switch(action.type){
         case SHOW_ATTENDING:
             return person => person.attending;
